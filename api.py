@@ -1,4 +1,5 @@
 from flask import Flask, redirect, request
+from flask_cors import cross_origin
 import paho.mqtt.client as mqtt
 import paho.mqtt.publish as publish
 import paho.mqtt.subscribe as subscribe
@@ -140,6 +141,7 @@ def play_sound():
         result["api_error"] = "None of this working!"
         return result
 
+@cross_origin()
 @app.route('/api/sounds-available')
 def sound_available():
     sounds_available = subscribe.simple(
