@@ -141,8 +141,8 @@ def play_sound():
         result["api_error"] = "None of this working!"
         return result
 
-@cross_origin()
 @app.route('/api/sounds-available')
+@cross_origin()
 def sound_available():
     sounds_available = subscribe.simple(
         'buttonbox-sounds', 
