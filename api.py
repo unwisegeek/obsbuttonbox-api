@@ -157,7 +157,7 @@ def sound_available():
         protocol=mqtt.MQTTv311, 
         transport="tcp",
         )
-    return sounds_available
+    return str(sounds_available.payload)
 
 @app.route('/api/test-volume')
 def test_volume():
