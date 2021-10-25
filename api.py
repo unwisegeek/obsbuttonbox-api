@@ -1,6 +1,7 @@
 from flask import Flask, redirect, request
 import paho.mqtt.client as mqtt
 import paho.mqtt.publish as publish
+import paho.mqtt.subscribe as subscribe
 import simpleobsws
 import asyncio
 import requests
@@ -141,7 +142,7 @@ def play_sound():
 
 @app.route('/api/sounds-available')
 def sound_available():
-    sounds_available = mqtt.simple(
+    sounds_available = subscribe.simple(
         'buttonbox-sounds', 
         qos=0, 
         msg_count=1, 
