@@ -159,7 +159,7 @@ def sound_available():
         protocol=mqtt.MQTTv311, 
         transport="tcp",
         )
-    return str(sounds_available.payload.decode('utf-8'))
+    return json.dumps(sounds_available.payload.decode('utf-8'))
 
 @app.route('/api/test-volume')
 def test_volume():
