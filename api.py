@@ -139,6 +139,25 @@ def play_sound():
         result["api_error"] = "None of this working!"
         return result
 
+@app.route('/api/sounds-available')
+def sound_available():
+    sounds_available = mqtt.simple(
+        'buttonbox-sounds', 
+        qos=0, 
+        msg_count=1, 
+        retained=True, 
+        hostname=MQTT_HOST,
+        port=MQTT_PORT, 
+        client_id="", 
+        keepalive=60, 
+        will=None, 
+        auth=MQTT_AUTH, 
+        tls=None,
+        protocol=mqtt.MQTTv311, 
+        transport="tcp",
+        )
+    return sounds_available
+
 @app.route('/api/test-volume')
 def test_volume():
     return loop.run_until_complete(make_request('SetVolume', data={"source": "Desktop Audio", "volume": -19.3, "useDecibel": True}))
