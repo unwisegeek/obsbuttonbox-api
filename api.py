@@ -161,6 +161,69 @@ def sound_available():
         )
     return json.dumps(sounds_available.payload.decode('utf-8'))
 
+@app.route('/api/countdown')
+def start_countdown():
+    has_time = False
+    has_ref = False
+    data, result = {}, {}
+    for key, value in request.values.items():
+        if key == "time":
+            has_time = True
+        if key == "ref":
+            has_ref = True
+        data[key] = value
+    
+    if has_time and has_ref:
+        try:
+            countdown = int(request.values["time"])
+            publish.single(
+                'countdown', 
+                str(countdown), 
+                qos=0, 
+                retain=False, 
+                hostname=MQTT_HOST,
+                port=MQTT_PORT, 
+                client_id="", 
+                keepalive=60,
+                will=None,
+                auth=MQTT_AUTH,
+                tls=None,
+                protocol=mqtt.MQTTv311,
+                transport="tcp",
+                )
+            return redirect(data["ref"])
+        except ValueError:
+            result['api_error'] = "API must receive a number for time."
+            return result
+    elif has_time and not has_ref:
+        try:
+            countdown = int(request.values["time"])
+            publish.single(
+                    'countdown', 
+                    countdown, 
+                    qos=0, 
+                    retain=False, 
+                    hostname=MQTT_HOST,
+                    port=MQTT_PORT, 
+                    client_id="", 
+                    keepalive=60,
+                    will=None,
+                    auth=MQTT_AUTH,
+                    tls=None,
+                    protocol=mqtt.MQTTv311,
+                    transport="tcp",
+                    )
+        except ValueError:
+            result['api_error'] = "API must receive a number for time. All API calls must contain a valid refferal."
+        return result
+    elif not has_time:
+        result["api_error"] = "Countdown API calls must have a number to count down from..."
+        return result
+    else:
+        result["api_error"] = "None of this working!"
+        return result
+    return redirect(data["ref"])
+
 @app.route('/api/test-volume')
 def test_volume():
     return loop.run_until_complete(make_request('SetVolume', data={"source": "Desktop Audio", "volume": -19.3, "useDecibel": True}))
@@ -174,3 +237,26 @@ def start_stream():
     # Set Mic/Aux -10Db
     # Unmute Mic/Aux
     # Switch to First Scene
+
+@app.route('/api/trigger-automation')
+def trigger_automation():
+    has_trigger = False
+    has_ref = False
+    data, result = {}, {}
+    for key, value in request.values.items():
+        if key == "time":
+            has_time = True
+        if key == "ref":
+            has_ref = True
+        data[key] = value
+    if has_trigger and has_ref:
+        pass
+    elif has_trigger and not has_ref:
+        return result
+    elif not has_trigger:
+        result["api_error"] = "Automation API calls must have a valid automation."
+        return result
+    else:
+        result["api_error"] = "None of this working!"
+        return result
+    return redirect(data["ref"])

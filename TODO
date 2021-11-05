@@ -1,3 +1,11 @@
 [X] - Set up a config file that does not go to git with my password
 [X] - Take published list of sounds on ActiveMQ and make the list available as an API endpoint
 [ ] - Support redirect to specific tab via idx HTTP GET variable added to redirect 
+[X] - Add API endpoint for countdown that writes to ActiveMQ 'countdown' topic
+[ ] - Add API endpoint to act as browser source for countdown in OBS
+
+Automation
+[ ] - Start Streaming: Mute the Mic, Start Streaming to Twitch, Set the Desktop Audio to -9db, set scene to "Starting Soon"
+[ ] - Start Countdown: Start a countdown for five minutes, switch to "Countdown" scene
+[ ] - Get To Work!: Set Desktop Volume to -19db, Unmute the Mic, set scene to "Left Camera"
+[ ] - End Stream: Set Desktop Volume to -9, Mute the Mic, and Set the scene to "Outro"
