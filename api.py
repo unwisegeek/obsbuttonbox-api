@@ -55,6 +55,72 @@ def automation_start_stream():
     for n in range(0, len(data_list)):
         loop.run_until_complete(make_request(call_list[n], data=data_list[n]))
 
+def automation_start_countdown(time=300):
+    publish.single(
+                'countdown', 
+                str(time),
+                qos=0, 
+                retain=False, 
+                hostname=MQTT_HOST,
+                port=MQTT_PORT, 
+                client_id="", 
+                keepalive=60,
+                will=None,
+                auth=MQTT_AUTH,
+                tls=None,
+                protocol=mqtt.MQTTv311,
+                transport="tcp",
+                )
+    loop.run_until_complete(make_request("SetCurrentScene", data={'scene-name': 'Countdown'}))
+
+def automation_on_camera():
+    data_list = [
+        {"source":"Mic/Aux", "mute": False},
+        {"source":"Desktop Audio", "volume":-19, "useDecibel": True},
+        {'scene-name': 'Left Monitor w/ Lower-Left Camera'},
+    ]
+
+    call_list = [
+        "SetMute",
+        "SetVolume",
+        "SetCurrentScene",
+    ]
+
+    for n in range(0, len(data_list)):
+        loop.run_until_complete(make_request(call_list[n], data=data_list[n]))
+
+def automation_on_camera():
+    data_list = [
+        {"source":"Mic/Aux", "mute": False},
+        {"source":"Desktop Audio", "volume":-19, "useDecibel": True},
+        {'scene-name': 'Left Monitor w/ Lower-Left Camera'},
+    ]
+
+    call_list = [
+        "SetMute",
+        "SetVolume",
+        "SetCurrentScene",
+    ]
+
+    for n in range(0, len(data_list)):
+        loop.run_until_complete(make_request(call_list[n], data=data_list[n]))
+
+def automation_outro():
+    data_list = [
+        {"source":"Mic/Aux", "mute": True},
+        {"source":"Desktop Audio", "volume":-9, "useDecibel": True},
+        {'scene-name': 'Outro'},
+    ]
+
+    call_list = [
+        "SetMute",
+        "SetVolume",
+        "SetCurrentScene",
+    ]
+
+    for n in range(0, len(data_list)):
+        loop.run_until_complete(make_request(call_list[n], data=data_list[n]))
+
 def options_to_GET(options_list):
     output = ""
     for i in range(0, len(options_list)):
@@ -242,12 +308,7 @@ def start_countdown():
         return result
     return redirect(data["ref"])
 
-@app.route('/api/test-volume')
-def test_volume():
-    return loop.run_until_complete(make_request('SetVolume', data={"source": "Desktop Audio", "volume": -19.3, "useDecibel": True}))
 
-@app.route('/api/start-stream', methods=['GET', 'POST'])
-def start_stream():
     # Things To Do:
     # Drop 'Desktop Audio' to -19DB
     options = [ 'call=SetVolume', 'source=Desktop Audio:str', 'useDecibel=true:bool', 'volume=-19.0:float' ]
@@ -270,8 +331,34 @@ def trigger_automation():
     if has_trigger and has_ref:
         if data["trigger"] == "startstream":
             automation_start_stream()
-            return redirect(data["ref"])
+        if data["trigger"] == "startcountdown":
+            if "time" in data.keys():
+                try:
+                    automation_start_countdown(int(data["time"]))
+                except:
+                    automation_start_countdown()    
+            else:
+                automation_start_countdown()
+        if data["trigger"] == "gooncamera":
+            automation_on_camera()
+        if data["trigger"] == "start-outro":
+            automation_outro()
+        return redirect(data["ref"])
     elif has_trigger and not has_ref:
+        if data["trigger"] == "startstream":
+            automation_start_stream()
+        if data["trigger"] == "startcountdown":
+            if "time" in data.keys():
+                try:
+                    automation_start_countdown(int(data["time"]))
+                except:
+                    automation_start_countdown()    
+            else:
+                automation_start_countdown()
+        if data["trigger"] == "gooncamera":
+            automation_on_camera
+        if data["trigger"] == "start-outro":
+            automation_outro
         return result
     elif not has_trigger:
         result["api_error"] = "Automation API calls must have a valid automation."

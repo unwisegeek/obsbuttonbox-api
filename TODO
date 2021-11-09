@@ -5,7 +5,7 @@
 [ ] - Add API endpoint to act as browser source for countdown in OBS
 
 Automation
-[ ] - Start Streaming: Mute the Mic, Start Streaming to Twitch, Set the Desktop Audio to -9db, set scene to "Starting Soon"
-[ ] - Start Countdown: Start a countdown for five minutes, switch to "Countdown" scene
-[ ] - Get To Work!: Set Desktop Volume to -19db, Unmute the Mic, set scene to "Left Camera"
-[ ] - End Stream: Set Desktop Volume to -9, Mute the Mic, and Set the scene to "Outro"
+[X] - Start Streaming: Mute the Mic, Start Streaming to Twitch, Set the Desktop Audio to -9db, set scene to "Starting Soon"
+[X] - Start Countdown: Start a countdown for five minutes, switch to "Countdown" scene
+[X] - Get To Work!: Set Desktop Volume to -19db, Unmute the Mic, set scene to "Left Camera"
+[X] - End Stream: Set Desktop Volume to -9, Mute the Mic, and Set the scene to "Outro"
