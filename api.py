@@ -26,7 +26,7 @@ obs = simpleobsws.obsws(host=OBS_HOST, port=OBS_PORT, password=OBS_PASSWORD, loo
 async def make_request(call, data=None):
     try:
         destination = data['ref']
-    except KeyError:
+    except (KeyError, TypeError):
         destination = None
     await obs.connect()
     result = await obs.call(call, data=data)
@@ -36,6 +36,24 @@ async def make_request(call, data=None):
     else:
         result["api_warning"] = "All API calls must contain a valid refferal."
         return result
+
+def automation_start_stream():
+    data_list = [
+        {"source":"Mic/Aux", "mute": True},
+        None,
+        {"source":"Desktop Audio", "volume":-9, "useDecibel": True},
+        {'scene-name': 'Starting Soon'},
+    ]
+
+    call_list = [
+        "SetMute",
+        "StartStreaming",
+        "SetVolume",
+        "SetCurrentScene",
+    ]
+
+    for n in range(0, len(data_list)):
+        loop.run_until_complete(make_request(call_list[n], data=data_list[n]))
 
 def options_to_GET(options_list):
     output = ""
@@ -238,19 +256,21 @@ def start_stream():
     # Unmute Mic/Aux
     # Switch to First Scene
 
-@app.route('/api/trigger-automation')
+@app.route('/api/automation')
 def trigger_automation():
     has_trigger = False
     has_ref = False
     data, result = {}, {}
     for key, value in request.values.items():
-        if key == "time":
-            has_time = True
+        if key == "trigger":
+            has_trigger = True
         if key == "ref":
             has_ref = True
         data[key] = value
     if has_trigger and has_ref:
-        pass
+        if data["trigger"] == "startstream":
+            automation_start_stream()
+            return redirect(data["ref"])
     elif has_trigger and not has_ref:
         return result
     elif not has_trigger:
