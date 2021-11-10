@@ -317,6 +317,24 @@ def start_countdown():
     # Unmute Mic/Aux
     # Switch to First Scene
 
+AUTOMATION_LIST = [
+                    "Start Stream:startstream",
+                    "Countdown - 1m:startcountdown&time=60",
+                    "Countdown - 2m:startcountdown&time=120",
+                    "Countdown - 5m:startcountdown&time=300",
+                    "Countdown - 10m:startcountdown&time=600",
+                    "Go On Camera:gooncamera",
+                    "Outro:start-outro",
+                    ]
+
+@app.route('/api/automation/triggers')
+@cross_origin()
+def automation_trigger_list():
+    response = ""
+    for i in range(0, len(AUTOMATION_LIST)):
+        response += AUTOMATION_LIST[i] if i == (len(AUTOMATION_LIST) - 1) else f"{AUTOMATION_LIST[i]},"
+    return json.dumps(response)
+
 @app.route('/api/automation')
 def trigger_automation():
     has_trigger = False

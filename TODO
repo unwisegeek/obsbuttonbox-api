@@ -3,6 +3,8 @@
 [ ] - Support redirect to specific tab via idx HTTP GET variable added to redirect 
 [X] - Add API endpoint for countdown that writes to ActiveMQ 'countdown' topic
 [ ] - Add API endpoint to act as browser source for countdown in OBS
+[X] - Add API endpot for Automation
+[X] - Add API endpoint to list automations
 
 Automation
 [X] - Start Streaming: Mute the Mic, Start Streaming to Twitch, Set the Desktop Audio to -9db, set scene to "Starting Soon"
