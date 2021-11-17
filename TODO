@@ -5,6 +5,7 @@
 [ ] - Add API endpoint to act as browser source for countdown in OBS
 [X] - Add API endpot for Automation
 [X] - Add API endpoint to list automations
+[ ] - Add API endpoints to manage volume sliders
 
 Automation
 [X] - Start Streaming: Mute the Mic, Start Streaming to Twitch, Set the Desktop Audio to -9db, set scene to "Starting Soon"
