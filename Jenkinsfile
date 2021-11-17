@@ -3,7 +3,8 @@ pipeline {
     stages {
         stage('build') {
             steps {
-                sh 'python --version'
+                export FLASK_APP=api
+                sh 'flask run'
             }
         }
     }
