@@ -42,12 +42,14 @@ def automation_start_stream():
         {"source":"Mic/Aux", "mute": True},
         None,
         {"source":"Desktop Audio", "volume":-9, "useDecibel": True},
+        {"source":"Mic/Aux", "volume":-7.1, "useDecibel": True},
         {'scene-name': 'Starting Soon'},
     ]
 
     call_list = [
         "SetMute",
         "StartStreaming",
+        "SetVolume",
         "SetVolume",
         "SetCurrentScene",
     ]
@@ -76,28 +78,14 @@ def automation_start_countdown(time=300):
 def automation_on_camera():
     data_list = [
         {"source":"Mic/Aux", "mute": False},
-        {"source":"Desktop Audio", "volume":-19, "useDecibel": True},
+        {"source":"Desktop Audio", "volume":-25.2, "useDecibel": True},
+        {"source":"Mic/Aux", "volume":-7.1, "useDecibel": True},
         {'scene-name': 'Left Monitor w/ Lower-Left Camera'},
     ]
 
     call_list = [
         "SetMute",
         "SetVolume",
-        "SetCurrentScene",
-    ]
-
-    for n in range(0, len(data_list)):
-        loop.run_until_complete(make_request(call_list[n], data=data_list[n]))
-
-def automation_on_camera():
-    data_list = [
-        {"source":"Mic/Aux", "mute": False},
-        {"source":"Desktop Audio", "volume":-19, "useDecibel": True},
-        {'scene-name': 'Left Monitor w/ Lower-Left Camera'},
-    ]
-
-    call_list = [
-        "SetMute",
         "SetVolume",
         "SetCurrentScene",
     ]
