@@ -373,3 +373,8 @@ def trigger_automation():
         result["api_error"] = "None of this working!"
         return result
     return redirect(data["ref"])
+
+@app.route('/api/healthcheck')
+@cross_origin()
+def health_check():
+    return "true"
