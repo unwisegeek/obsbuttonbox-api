@@ -1,6 +1,7 @@
 # Project specific ignored files
 config.py
 *venv/
+launch.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
