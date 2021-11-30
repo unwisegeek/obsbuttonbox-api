@@ -31,11 +31,7 @@ async def make_request(call, data=None):
     await obs.connect()
     result = await obs.call(call, data=data)
     await obs.disconnect()
-    if destination:
-        return redirect(destination)
-    else:
-        result["api_warning"] = "All API calls must contain a valid refferal."
-        return result
+    return result
 
 def automation_start_stream():
     data_list = [
@@ -130,6 +126,7 @@ def str_to_bool(target):
         return target
 
 @app.route("/api/", methods=['GET'])
+@cross_origin()
 def api_call():
     # "volume=-19.3:float" or "source=Desktop Audio:str"
     data={}
