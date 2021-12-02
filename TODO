@@ -7,7 +7,7 @@
 [X] - Add API endpoint to list automations
 [X] - Add API endpoints to manage volume sliders
 [X] - Add API endpoint to allow health check
-[ ] - Add endpoints to allow querying of volume sliders
+[X] - Add endpoints to allow querying of volume sliders
 
 Automation
 [X] - Start Streaming: Mute the Mic, Start Streaming to Twitch, Set the Desktop Audio to -9db, set scene to "Starting Soon"
