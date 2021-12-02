@@ -375,3 +375,26 @@ def trigger_automation():
 @cross_origin()
 def health_check():
     return "true"
+
+@app.route('/api/getsoundsources')
+@cross_origin()
+def getsoundsources():
+    res = loop.run_until_complete(make_request("GetSourcesList"))
+    source_list = {}
+    source_list["sources"] = {}
+    counter = 0
+    for i in range(0, len(res["sources"])):
+        if res["sources"][i]["typeId"] in ("pulse_input_capture", "pulse_output_capture"):
+            # source_list["sources"][counter] = res["sources"][i]["name"]
+            source = loop.run_until_complete(
+                make_request("GetVolume", data={'source': res["sources"][i]["name"], 'useDecibel': True})
+            )
+            source_list["sources"][counter] = { 
+                'muted': source["muted"],
+                'name': source["name"],
+                'status': source["status"],
+                'volume': round(source["volume"], 1)
+            }
+            counter += 1
+    return source_list
+
