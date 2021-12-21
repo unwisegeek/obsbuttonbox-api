@@ -8,6 +8,8 @@
 [X] - Add API endpoints to manage volume sliders
 [X] - Add API endpoint to allow health check
 [X] - Add endpoints to allow querying of volume sliders
+[ ] - Add endpoints to set topic and message from frontend
+[ ] - Edit render of scrollbar to support reading topic from MQTT
 
 Automation
 [X] - Start Streaming: Mute the Mic, Start Streaming to Twitch, Set the Desktop Audio to -9db, set scene to "Starting Soon"
