@@ -1,5 +1,6 @@
 from flask import Flask, redirect, request
 from flask_cors import cross_origin
+from string import Template
 import paho.mqtt.client as mqtt
 import paho.mqtt.publish as publish
 import paho.mqtt.subscribe as subscribe
@@ -17,6 +18,9 @@ from config import (
     OBS_PORT,
     OBS_PASSWORD,
     )
+from templates import (
+    scrollbar_template
+)
 
 app = Flask(__name__)
 loop = asyncio.get_event_loop()
@@ -398,3 +402,43 @@ def getsoundsources():
             counter += 1
     return source_list
 
+@app.route('/api/refresh_soundboard')
+@cross_origin()
+def refresh_soundboard():
+    has_name = False
+    has_ref = False
+    data, result = {}, {}
+    for key, value in request.values.items():
+        if key == "name":
+            has_name = True
+        if key == "ref":
+            has_ref = True
+        data[key] = value
+    
+    if has_name and has_ref:
+        data['refresh'] = True
+        msg = json.dumps(data)
+        publish.single(
+            'buttonbox', 
+            str(msg), 
+            qos=0, 
+            retain=False, 
+            hostname=MQTT_HOST,
+            port=MQTT_PORT, 
+            client_id="", 
+            keepalive=60,
+            will=None,
+            auth=MQTT_AUTH,
+            tls=None,
+            protocol=mqtt.MQTTv311,
+            transport="tcp",
+            )
+    return "0"
+
+@app.route('/api/scrollbar')
+@cross_origin()
+def set_scrollbar():
+    msg="Stream Topic: "
+    msg2=""
+    page = scrollbar_template.safe_substitute(msg=msg, msg2=msg2)
+    return str(page)
