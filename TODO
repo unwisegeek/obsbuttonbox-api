@@ -7,12 +7,14 @@
 [X] - Add API endpoint to list automations
 [X] - Add API endpoints to manage volume sliders
 [X] - Add API endpoint to allow health check
-[X] - Add endpoints to allow querying of volume sliders
-[ ] - Add endpoints to set topic and message from frontend
-[ ] - Edit render of scrollbar to support reading topic from MQTT
+[X] - Add endpoints to allow  querying of volume sliders
+[X] - Add endpoints to set topic and message from frontend
+[X] - Edit render of scrollbar to support reading topic from MQTT
+[ ] - BUG: Quotation marks in lines when received from API.
 
 Automation
 [X] - Start Streaming: Mute the Mic, Start Streaming to Twitch, Set the Desktop Audio to -9db, set scene to "Starting Soon"
 [X] - Start Countdown: Start a countdown for five minutes, switch to "Countdown" scene
 [X] - Get To Work!: Set Desktop Volume to -19db, Unmute the Mic, set scene to "Left Camera"
 [X] - End Stream: Set Desktop Volume to -9, Mute the Mic, and Set the scene to "Outro"
+[ ] - Toggle Browser source when new scrollbar topics are received.

@@ -23,7 +23,8 @@ from templates import (
 )
 
 app = Flask(__name__)
-loop = asyncio.get_event_loop()
+loop = asyncio.new_event_loop()
+asyncio.set_event_loop(loop)
 
 obs = simpleobsws.obsws(host=OBS_HOST, port=OBS_PORT, password=OBS_PASSWORD, loop=loop)
 
@@ -426,7 +427,7 @@ def refresh_soundboard():
             hostname=MQTT_HOST,
             port=MQTT_PORT, 
             client_id="", 
-            keepalive=60,
+            keepalive=1,
             will=None,
             auth=MQTT_AUTH,
             tls=None,
@@ -437,8 +438,143 @@ def refresh_soundboard():
 
 @app.route('/api/scrollbar')
 @cross_origin()
-def set_scrollbar():
-    msg="Stream Topic: "
-    msg2=""
-    page = scrollbar_template.safe_substitute(msg=msg, msg2=msg2)
+def render_scrollbar():
+    msg = json.dumps(subscribe.simple(
+        'scrollbarline1', 
+        qos=0, 
+        msg_count=1, 
+        retained=True, 
+        hostname=MQTT_HOST,
+        port=MQTT_PORT, 
+        client_id="", 
+        keepalive=60, 
+        will=None, 
+        auth=MQTT_AUTH, 
+        tls=None,
+        protocol=mqtt.MQTTv311, 
+        transport="tcp",
+        ).payload.decode('utf-8'))
+    msg2 = json.dumps(subscribe.simple(
+        'scrollbarline2', 
+        qos=0, 
+        msg_count=1, 
+        retained=True, 
+        hostname=MQTT_HOST,
+        port=MQTT_PORT, 
+        client_id="", 
+        keepalive=60, 
+        will=None, 
+        auth=MQTT_AUTH, 
+        tls=None,
+        protocol=mqtt.MQTTv311, 
+        transport="tcp",
+        ).payload.decode('utf-8'))
+    page = scrollbar_template.safe_substitute(line1=msg, line2=msg2)
     return str(page)
+
+@app.route('/api/setscrollbar')
+@cross_origin()
+def set_scrollbar():
+    try:
+        has_line = False
+        has_msg = False
+        data, result = {}, {}
+        for key, value in request.values.items():
+            if key == "line":
+                has_line = True
+            if key == "msg":
+                has_msg = True
+            data[key] = value
+        
+        if (has_line and has_msg) and data["line"] in ("1", "2"):
+            publish.single(
+                f'scrollbarline{data["line"]}', 
+                data["msg"], 
+                qos=0, 
+                retain=True, 
+                hostname=MQTT_HOST,
+                port=MQTT_PORT, 
+                client_id="set-scrollbar",
+                keepalive=60,
+                will=None,
+                auth=MQTT_AUTH,
+                tls=None,
+                protocol=mqtt.MQTTv311,
+                transport="tcp",
+                )
+            return redirect(f'http://{API_URL}:{API_PORT}')
+        elif not has_msg or not has_line:
+            result["api_error"] = "Set-Scrollbar API calls must have a line number (1 or 2) and a message to display."
+            return result
+        return redirect(f'http://{API_URL}:{API_PORT}')
+    except TypeError:
+        has_line = False
+        has_msg = False
+        data, result = {}, {}
+        for key, value in request.values.items():
+            if key == "line":
+                has_line = True
+            if key == "msg":
+                has_msg = True
+            data[key] = value
+        
+        if (has_line and has_msg) and data["line"] in ("1", "2"):
+            publish.single(
+                f'scrollbarline{data["line"]}', 
+                data["msg"], 
+                qos=0, 
+                retain=True, 
+                hostname=MQTT_HOST,
+                port=MQTT_PORT, 
+                client_id="set-scrollbar",
+                keepalive=60,
+                will=None,
+                auth=MQTT_AUTH,
+                tls=None,
+                protocol=mqtt.MQTTv311,
+                transport="tcp",
+                )
+            return redirect(f'http://{API_URL}:{API_PORT}')
+        elif not has_msg or not has_line:
+            result["api_error"] = "Set-Scrollbar API calls must have a line number (1 or 2) and a message to display."
+            return result
+        return redirect(f'http://{API_URL}:{API_PORT}')
+
+@app.route('/api/getscrollbar')
+@cross_origin()
+def get_scrollbar():
+    msg1 = json.dumps(subscribe.simple(
+        'scrollbarline1', 
+        qos=0, 
+        msg_count=1, 
+        retained=True, 
+        hostname=MQTT_HOST,
+        port=MQTT_PORT, 
+        client_id="", 
+        keepalive=60, 
+        will=None, 
+        auth=MQTT_AUTH, 
+        tls=None,
+        protocol=mqtt.MQTTv311, 
+        transport="tcp",
+        ).payload.decode('utf-8'))
+    msg2 = json.dumps(subscribe.simple(
+        'scrollbarline2', 
+        qos=0, 
+        msg_count=1, 
+        retained=True, 
+        hostname=MQTT_HOST,
+        port=MQTT_PORT, 
+        client_id="", 
+        keepalive=60, 
+        will=None, 
+        auth=MQTT_AUTH, 
+        tls=None,
+        protocol=mqtt.MQTTv311, 
+        transport="tcp",
+        ).payload.decode('utf-8'))
+    results = {
+        'line1': msg1.strip('"').strip("\\"),
+        'line2': msg2.strip('"').strip("\\"),
+        }
+    return(results)

@@ -21,8 +21,8 @@ padding:0em;
 </style>
 
 <!-- HTML Code -->
-<marquee class="GeneratedMarquee" direction="left" scrollamount="15" behavior="alternate">$msg</marquee>
-<marquee class="GeneratedMarquee" direction="right" scrollamount="15" behavior="alternate">$msg</marquee>
+<marquee class="GeneratedMarquee" direction="left" scrollamount="15" behavior="alternate">$line1</marquee>
+<marquee class="GeneratedMarquee" direction="right" scrollamount="15" behavior="alternate">$line2</marquee>
 
 
     """
