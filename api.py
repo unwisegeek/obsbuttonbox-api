@@ -1,4 +1,4 @@
-from flask import Flask, redirect, request
+from flask import Flask, redirect, request, Response
 from flask_cors import cross_origin
 from string import Template
 import paho.mqtt.client as mqtt
@@ -6,7 +6,6 @@ import paho.mqtt.publish as publish
 import paho.mqtt.subscribe as subscribe
 import simpleobsws
 import asyncio
-import requests
 import json
 from config import (
     API_URL,
@@ -21,6 +20,13 @@ from config import (
 from templates import (
     scrollbar_template
 )
+
+BADREQ = Response(status=400)
+GOODREQ = Response(status=200)
+TEAPOTREQ = Response(status=418)
+# BADREQ = 400
+# GOODREQ = 200
+# TEAPOTREQ = 418
 
 app = Flask(__name__)
 loop = asyncio.new_event_loop()
@@ -118,11 +124,6 @@ def options_to_GET(options_list):
             output += "&"
     return output
 
-def convert_db_to_mul(decibels):
-    db = decibels * -1
-    perc_db = decibels / 60
-    return 
-
 def str_to_bool(target):
     if target.lower() in {'true', 'false'}:
         value = True if target.lower() == "true" else False
@@ -138,20 +139,19 @@ def api_call():
     for key, value in request.values.items():
         if key not in {"call"}:
             try:
-                if key not in {"ref"}:
-                    splitvalue = value.split(":")
-                    if splitvalue[1] == "bool":
-                        data[key] = str_to_bool(splitvalue[0])
-                    elif splitvalue[1] == "int":
-                        data[key] = int(splitvalue[0])
-                    elif splitvalue[1] == "float":
-                        data[key] = float(splitvalue[0])
-                    else:
-                        data[key] = splitvalue[0]
+                splitvalue = value.split(":")
+                if splitvalue[1] == "bool":
+                    data[key] = str_to_bool(splitvalue[0])
+                elif splitvalue[1] == "int":
+                    data[key] = int(splitvalue[0])
+                elif splitvalue[1] == "float":
+                    data[key] = float(splitvalue[0])
                 else:
-                    data[key] = value
+                    data[key] = splitvalue[0]
             except IndexError:
                 data[key] = value
+        else:
+            data[key] = value
     if len(data.values()) == 0:
         return loop.run_until_complete(make_request(request.values["call"]))
     else:
@@ -160,16 +160,13 @@ def api_call():
 @app.route('/api/sound')
 def play_sound():
     has_name = False
-    has_ref = False
     data, result = {}, {}
     for key, value in request.values.items():
         if key == "name":
             has_name = True
-        if key == "ref":
-            has_ref = True
         data[key] = value
     
-    if has_name and has_ref:
+    if has_name:
         data['snd'] = request.values["name"]
         msg = json.dumps(data)
         publish.single(
@@ -188,7 +185,7 @@ def play_sound():
             transport="tcp",
             )
         return redirect(data['ref'])
-    elif has_name and not has_ref:
+    elif has_name:
         data['snd'] = request.values["name"]
         msg = json.dumps(data)
         publish.single(
@@ -238,16 +235,13 @@ def sound_available():
 @app.route('/api/countdown')
 def start_countdown():
     has_time = False
-    has_ref = False
     data, result = {}, {}
     for key, value in request.values.items():
         if key == "time":
             has_time = True
-        if key == "ref":
-            has_ref = True
         data[key] = value
     
-    if has_time and has_ref:
+    if has_time:
         try:
             countdown = int(request.values["time"])
             publish.single(
@@ -265,47 +259,15 @@ def start_countdown():
                 protocol=mqtt.MQTTv311,
                 transport="tcp",
                 )
-            return redirect(data["ref"])
+            return GOODREQ
         except ValueError:
             result['api_error'] = "API must receive a number for time."
-            return result
-    elif has_time and not has_ref:
-        try:
-            countdown = int(request.values["time"])
-            publish.single(
-                    'countdown', 
-                    countdown, 
-                    qos=0, 
-                    retain=False, 
-                    hostname=MQTT_HOST,
-                    port=MQTT_PORT, 
-                    client_id="", 
-                    keepalive=60,
-                    will=None,
-                    auth=MQTT_AUTH,
-                    tls=None,
-                    protocol=mqtt.MQTTv311,
-                    transport="tcp",
-                    )
-        except ValueError:
-            result['api_error'] = "API must receive a number for time. All API calls must contain a valid refferal."
-        return result
+            return BADREQ
     elif not has_time:
-        result["api_error"] = "Countdown API calls must have a number to count down from..."
-        return result
+        return BADREQ
     else:
         result["api_error"] = "None of this working!"
-        return result
-    return redirect(data["ref"])
-
-
-    # Things To Do:
-    # Drop 'Desktop Audio' to -19DB
-    options = [ 'call=SetVolume', 'source=Desktop Audio:str', 'useDecibel=true:bool', 'volume=-19.0:float' ]
-    r = request.get(f"{API_URL}?{options_to_GET(options)}")
-    # Set Mic/Aux -10Db
-    # Unmute Mic/Aux
-    # Switch to First Scene
+        return BADREQ
 
 AUTOMATION_LIST = [
                     "Start Stream:startstream",
@@ -328,15 +290,12 @@ def automation_trigger_list():
 @app.route('/api/automation')
 def trigger_automation():
     has_trigger = False
-    has_ref = False
     data, result = {}, {}
     for key, value in request.values.items():
         if key == "trigger":
             has_trigger = True
-        if key == "ref":
-            has_ref = True
         data[key] = value
-    if has_trigger and has_ref:
+    if has_trigger:
         if data["trigger"] == "startstream":
             automation_start_stream()
         if data["trigger"] == "startcountdown":
@@ -344,37 +303,18 @@ def trigger_automation():
                 try:
                     automation_start_countdown(int(data["time"]))
                 except:
-                    automation_start_countdown()    
+                    automation_start_countdown()
             else:
                 automation_start_countdown()
         if data["trigger"] == "gooncamera":
             automation_on_camera()
         if data["trigger"] == "start-outro":
             automation_outro()
-        return redirect(data["ref"])
-    elif has_trigger and not has_ref:
-        if data["trigger"] == "startstream":
-            automation_start_stream()
-        if data["trigger"] == "startcountdown":
-            if "time" in data.keys():
-                try:
-                    automation_start_countdown(int(data["time"]))
-                except:
-                    automation_start_countdown()    
-            else:
-                automation_start_countdown()
-        if data["trigger"] == "gooncamera":
-            automation_on_camera
-        if data["trigger"] == "start-outro":
-            automation_outro
-        return result
+        return GOODREQ
     elif not has_trigger:
-        result["api_error"] = "Automation API calls must have a valid automation."
-        return result
+        return BADREQ
     else:
-        result["api_error"] = "None of this working!"
-        return result
-    return redirect(data["ref"])
+        return BADREQ
 
 @app.route('/api/healthcheck')
 @cross_origin()
@@ -390,7 +330,6 @@ def getsoundsources():
     counter = 0
     for i in range(0, len(res["sources"])):
         if res["sources"][i]["typeId"] in ("pulse_input_capture", "pulse_output_capture"):
-            # source_list["sources"][counter] = res["sources"][i]["name"]
             source = loop.run_until_complete(
                 make_request("GetVolume", data={'source': res["sources"][i]["name"], 'useDecibel': True})
             )
@@ -407,16 +346,13 @@ def getsoundsources():
 @cross_origin()
 def refresh_soundboard():
     has_name = False
-    has_ref = False
     data, result = {}, {}
     for key, value in request.values.items():
         if key == "name":
             has_name = True
-        if key == "ref":
-            has_ref = True
         data[key] = value
     
-    if has_name and has_ref:
+    if has_name:
         data['refresh'] = True
         msg = json.dumps(data)
         publish.single(
@@ -434,7 +370,7 @@ def refresh_soundboard():
             protocol=mqtt.MQTTv311,
             transport="tcp",
             )
-    return "0"
+    return GOODREQ
 
 @app.route('/api/scrollbar')
 @cross_origin()
@@ -453,7 +389,7 @@ def render_scrollbar():
         tls=None,
         protocol=mqtt.MQTTv311, 
         transport="tcp",
-        ).payload.decode('utf-8'))
+        ).payload.decode('utf-8')).strip('"')
     msg2 = json.dumps(subscribe.simple(
         'scrollbarline2', 
         qos=0, 
@@ -468,7 +404,7 @@ def render_scrollbar():
         tls=None,
         protocol=mqtt.MQTTv311, 
         transport="tcp",
-        ).payload.decode('utf-8'))
+        ).payload.decode('utf-8')).strip('"')
     page = scrollbar_template.safe_substitute(line1=msg, line2=msg2)
     return str(page)
 
@@ -502,11 +438,10 @@ def set_scrollbar():
                 protocol=mqtt.MQTTv311,
                 transport="tcp",
                 )
-            return redirect(f'http://{API_URL}:{API_PORT}')
+            return GOODREQ
         elif not has_msg or not has_line:
-            result["api_error"] = "Set-Scrollbar API calls must have a line number (1 or 2) and a message to display."
-            return result
-        return redirect(f'http://{API_URL}:{API_PORT}')
+            return BADREQ
+        return BADREQ
     except TypeError:
         has_line = False
         has_msg = False
@@ -534,11 +469,10 @@ def set_scrollbar():
                 protocol=mqtt.MQTTv311,
                 transport="tcp",
                 )
-            return redirect(f'http://{API_URL}:{API_PORT}')
+            return GOODREQ
         elif not has_msg or not has_line:
-            result["api_error"] = "Set-Scrollbar API calls must have a line number (1 or 2) and a message to display."
-            return result
-        return redirect(f'http://{API_URL}:{API_PORT}')
+            return BADREQ
+        return BADREQ
 
 @app.route('/api/getscrollbar')
 @cross_origin()
@@ -578,3 +512,8 @@ def get_scrollbar():
         'line2': msg2.strip('"').strip("\\"),
         }
     return(results)
+
+@app.route('/api/whoareyou')
+@cross_origin()
+def whoami():
+    return TEAPOTREQ
