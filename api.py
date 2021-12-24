@@ -184,33 +184,11 @@ def play_sound():
             protocol=mqtt.MQTTv311,
             transport="tcp",
             )
-        return redirect(data['ref'])
-    elif has_name:
-        data['snd'] = request.values["name"]
-        msg = json.dumps(data)
-        publish.single(
-                'buttonbox', 
-                str(msg), 
-                qos=0, 
-                retain=False, 
-                hostname=MQTT_HOST,
-                port=MQTT_PORT, 
-                client_id="", 
-                keepalive=60,
-                will=None,
-                auth=MQTT_AUTH,
-                tls=None,
-                protocol=mqtt.MQTTv311,
-                transport="tcp",
-                )
-        result["api_error"] = "All API calls must contain a valid refferal."
-        return result
+        return GOODREQ
     elif not has_name:
-        result["api_error"] = "Sound API calls must have a sound name."
-        return result
+        return BADREQ
     else:
-        result["api_error"] = "None of this working!"
-        return result
+        return BADREQ
 
 @app.route('/api/sounds-available')
 @cross_origin()
