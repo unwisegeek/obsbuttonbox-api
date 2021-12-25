@@ -87,13 +87,29 @@ def automation_on_camera():
         {"source":"Mic/Aux", "mute": False},
         {"source":"Desktop Audio", "volume":-25.2, "useDecibel": True},
         {"source":"Mic/Aux", "volume":-7.1, "useDecibel": True},
-        {'scene-name': 'Left Monitor w/ Lower-Left Camera'},
+        {'scene-name': 'Main'},
     ]
 
     call_list = [
         "SetMute",
         "SetVolume",
         "SetVolume",
+        "SetCurrentScene",
+    ]
+
+    for n in range(0, len(data_list)):
+        loop.run_until_complete(make_request(call_list[n], data=data_list[n]))
+
+def automation_stir_browser():
+    data_list = [
+        {'scene-name': 'Main'},
+        {'scene-name': 'Main 2'},
+        {'scene-name': 'Main'},
+    ]
+
+    call_list = [
+        "SetCurrentScene",
+        "SetCurrentScene",
         "SetCurrentScene",
     ]
 
@@ -389,68 +405,68 @@ def render_scrollbar():
 @app.route('/api/setscrollbar')
 @cross_origin()
 def set_scrollbar():
-    try:
-        has_line = False
-        has_msg = False
-        data, result = {}, {}
-        for key, value in request.values.items():
-            if key == "line":
-                has_line = True
-            if key == "msg":
-                has_msg = True
-            data[key] = value
-        
-        if (has_line and has_msg) and data["line"] in ("1", "2"):
-            publish.single(
-                f'scrollbarline{data["line"]}', 
-                data["msg"], 
-                qos=0, 
-                retain=True, 
-                hostname=MQTT_HOST,
-                port=MQTT_PORT, 
-                client_id="set-scrollbar",
-                keepalive=60,
-                will=None,
-                auth=MQTT_AUTH,
-                tls=None,
-                protocol=mqtt.MQTTv311,
-                transport="tcp",
-                )
-            return GOODREQ
-        elif not has_msg or not has_line:
-            return BADREQ
+    # if (has_line and has_msg) and data["line"] in ("1", "2"):
+    #     publish.single(
+    #         f'scrollbarline{data["line"]}', 
+    #         data["msg"], 
+    #         qos=0, 
+    #         retain=True, 
+    #         hostname=MQTT_HOST,
+    #         port=MQTT_PORT, 
+    #         client_id="set-scrollbar",
+    #         keepalive=60,
+    #         will=None,
+    #         auth=MQTT_AUTH,
+    #         tls=None,
+    #         protocol=mqtt.MQTTv311,
+    #         transport="tcp",
+    #         )
+    has_sb1 = False
+    has_sb2 = False
+    data, result = {}, {}
+    for key, value in request.values.items():
+        if key == "sb1":
+            has_sb1 = True
+        if key == "sb2":
+            has_sb2 = True
+        data[key] = value
+    
+    if not has_sb1 and not has_sb2:
         return BADREQ
-    except TypeError:
-        has_line = False
-        has_msg = False
-        data, result = {}, {}
-        for key, value in request.values.items():
-            if key == "line":
-                has_line = True
-            if key == "msg":
-                has_msg = True
-            data[key] = value
-        
-        if (has_line and has_msg) and data["line"] in ("1", "2"):
-            publish.single(
-                f'scrollbarline{data["line"]}', 
-                data["msg"], 
-                qos=0, 
-                retain=True, 
-                hostname=MQTT_HOST,
-                port=MQTT_PORT, 
-                client_id="set-scrollbar",
-                keepalive=60,
-                will=None,
-                auth=MQTT_AUTH,
-                tls=None,
-                protocol=mqtt.MQTTv311,
-                transport="tcp",
-                )
-            return GOODREQ
-        elif not has_msg or not has_line:
-            return BADREQ
-        return BADREQ
+
+    publish.single(
+        'scrollbarline1', 
+        data["sb1"], 
+        qos=0, 
+        retain=True, 
+        hostname=MQTT_HOST,
+        port=MQTT_PORT, 
+        client_id="set-scrollbar",
+        keepalive=60,
+        will=None,
+        auth=MQTT_AUTH,
+        tls=None,
+        protocol=mqtt.MQTTv311,
+        transport="tcp",
+        )
+
+    publish.single(
+        'scrollbarline2}',
+        data["sb2"], 
+        qos=0, 
+        retain=True, 
+        hostname=MQTT_HOST,
+        port=MQTT_PORT, 
+        client_id="set-scrollbar",
+        keepalive=60,
+        will=None,
+        auth=MQTT_AUTH,
+        tls=None,
+        protocol=mqtt.MQTTv311,
+        transport="tcp",
+        )
+    automation_stir_browser()
+    return GOODREQ
 
 @app.route('/api/getscrollbar')
 @cross_origin()
