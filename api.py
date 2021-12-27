@@ -451,7 +451,7 @@ def set_scrollbar():
         )
 
     publish.single(
-        'scrollbarline2}',
+        'scrollbarline2',
         data["sb2"], 
         qos=0, 
         retain=True, 
