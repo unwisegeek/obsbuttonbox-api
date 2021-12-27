@@ -90,6 +90,7 @@ def automation_start_countdown(time=300):
 
 def automation_on_camera():
     data_list = [
+        {"source":"Soundboard", "mute": False},
         {"source":"Mic/Aux", "mute": False},
         {"source":"Soundboard", "volume":-9.0, "useDecibel": True},
         {"source":"Spotify", "volume":-30.4, "useDecibel": True},
@@ -98,6 +99,7 @@ def automation_on_camera():
     ]
 
     call_list = [
+        "SetMute",
         "SetMute",
         "SetVolume",
         "SetVolume",
