@@ -47,15 +47,21 @@ async def make_request(call, data=None):
 def automation_start_stream():
     data_list = [
         {"source":"Mic/Aux", "mute": True},
+        {"source":"Desktop Audio", "mute": True},
+        {"source":"Soundboard", "mute": True},
         None,
-        {"source":"Desktop Audio", "volume":-9, "useDecibel": True},
+        {"source":"Soundboard", "volume":-9, "useDecibel": True},
+        {"source":"Spotify", "volume":-15, "useDecibel": True},
         {"source":"Mic/Aux", "volume":-7.1, "useDecibel": True},
         {'scene-name': 'Starting Soon'},
     ]
 
     call_list = [
         "SetMute",
+        "SetMute",
+        "SetMute",
         "StartStreaming",
+        "SetVolume",
         "SetVolume",
         "SetVolume",
         "SetCurrentScene",
@@ -85,13 +91,15 @@ def automation_start_countdown(time=300):
 def automation_on_camera():
     data_list = [
         {"source":"Mic/Aux", "mute": False},
-        {"source":"Desktop Audio", "volume":-25.2, "useDecibel": True},
+        {"source":"Soundboard", "volume":-9.0, "useDecibel": True},
+        {"source":"Spotify", "volume":-30.4, "useDecibel": True},
         {"source":"Mic/Aux", "volume":-7.1, "useDecibel": True},
         {'scene-name': 'Main'},
     ]
 
     call_list = [
         "SetMute",
+        "SetVolume",
         "SetVolume",
         "SetVolume",
         "SetCurrentScene",
@@ -119,12 +127,14 @@ def automation_stir_browser():
 def automation_outro():
     data_list = [
         {"source":"Mic/Aux", "mute": True},
-        {"source":"Desktop Audio", "volume":-9, "useDecibel": True},
+        {"source":"Soundboard", "mute": True},
+        {"source":"Spotify", "volume":-13, "useDecibel": True},
         {'scene-name': 'Outro'},
     ]
 
     call_list = [
         "SetMute",
+        "SetVolume",
         "SetVolume",
         "SetCurrentScene",
     ]
