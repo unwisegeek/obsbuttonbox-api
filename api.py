@@ -523,3 +523,12 @@ def get_scrollbar():
 @cross_origin()
 def whoami():
     return TEAPOTREQ
+
+@app.route('/api/getscenelist')
+@cross_origin()
+def getscenes():
+    scenes = ""
+    res = loop.run_until_complete(make_request("GetSceneList"))
+    for i in range(0, len(res["scenes"])):
+        scenes += f'{res["scenes"][i]["name"]},' if i != (len(res["scenes"]) - 1) else f'{res["scenes"][i]["name"]}'
+    return scenes
