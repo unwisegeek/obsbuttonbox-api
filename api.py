@@ -1,4 +1,4 @@
-from flask import Flask, redirect, request, Response
+from flask import Flask, redirect, request, Response, render_template
 from flask_cors import cross_origin
 from string import Template
 import paho.mqtt.client as mqtt
@@ -417,22 +417,6 @@ def render_scrollbar():
 @app.route('/api/setscrollbar')
 @cross_origin()
 def set_scrollbar():
-    # if (has_line and has_msg) and data["line"] in ("1", "2"):
-    #     publish.single(
-    #         f'scrollbarline{data["line"]}', 
-    #         data["msg"], 
-    #         qos=0, 
-    #         retain=True, 
-    #         hostname=MQTT_HOST,
-    #         port=MQTT_PORT, 
-    #         client_id="set-scrollbar",
-    #         keepalive=60,
-    #         will=None,
-    #         auth=MQTT_AUTH,
-    #         tls=None,
-    #         protocol=mqtt.MQTTv311,
-    #         transport="tcp",
-    #         )
     has_sb1 = False
     has_sb2 = False
     data, result = {}, {}
@@ -532,3 +516,51 @@ def getscenes():
     for i in range(0, len(res["scenes"])):
         scenes += f'{res["scenes"][i]["name"]},' if i != (len(res["scenes"]) - 1) else f'{res["scenes"][i]["name"]}'
     return scenes
+
+@app.route('/api/newchatmsg')
+@cross_origin()
+def newchatmsg():
+    has_author = False
+    has_color = False
+    has_msg = False
+    data, result = {}, {}
+    for key, value in request.values.items():
+        if key == "author":
+            has_author = True
+        if key == "color":
+            has_color = True
+        if key == "msg":
+            has_msg = True
+        data[key] = value
+    
+    if has_author and has_color and has_msg:
+        line = dict(author=data["author"], color=data["color"], msg=data["msg"])
+        f = open('./chatmessages', 'a')
+        f.write(f"{json.dumps(line)}\n")
+        f.close()
+        data_list = [
+            {'item': 'Chat History', 'visible': False},
+            {'item': 'Chat History', 'visible': True},
+        ]
+        call_list = [
+            "SetSceneItemProperties",
+            "SetSceneItemProperties",
+        ]
+        for n in range(0, len(data_list)):
+            loop.run_until_complete(make_request(call_list[n], data=data_list[n]))
+        
+        return GOODREQ
+    else:
+        return BADREQ
+
+@app.route('/api/chathistory')
+@cross_origin()
+def chathistory():
+    msgs = []
+    formatted_msgs = []
+    with open('./chatmessages', 'r') as f:
+        msgs = f.readlines()
+    for line in msgs:
+        msg = json.loads(line.strip('\n'))
+        formatted_msgs.append(msg)
+    return render_template('chathistory.html', chatmsgs=formatted_msgs)

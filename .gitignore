@@ -2,6 +2,7 @@
 config.py
 *venv/
 launch.json
+chatmessages
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

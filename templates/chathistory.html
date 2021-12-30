@@ -1,0 +1,25 @@
+<html>
+    <head>
+        <title>Chat History</title>
+        <style>
+            html {overflow: hidden; }
+            body {background-color: #000000; font-size: large; }
+        </style>
+        <script>
+            function scrollBottom() {
+                window.scrollTo(0, 99999);
+            }
+            
+            if (document.addEventListener) { 
+                document.addEventListener("DOMContentLoaded", scrollBottom, false);
+            } else if (window.attachEvent) {
+                window.attachEvent("onload", scrollBottom);
+            }
+        </script>
+    </head>
+    <body>
+    {% for line in chatmsgs %}
+        <div style="color: #{{ line['color'] }}; display: inline-block;">{{ line['author'] }}</div><div style="color: #FFFFFF; display: inline-block;">: {{ line['msg'] }}</div><br>
+    {% endfor %}
+    </body>
+</html>
