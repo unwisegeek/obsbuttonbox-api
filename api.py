@@ -538,16 +538,16 @@ def newchatmsg():
         f = open('./chatmessages', 'a')
         f.write(f"{json.dumps(line)}\n")
         f.close()
-        data_list = [
-            {'item': 'Chat History', 'visible': False},
-            {'item': 'Chat History', 'visible': True},
-        ]
-        call_list = [
-            "SetSceneItemProperties",
-            "SetSceneItemProperties",
-        ]
-        for n in range(0, len(data_list)):
-            loop.run_until_complete(make_request(call_list[n], data=data_list[n]))
+        # data_list = [
+        #     {'item': 'Chat History', 'visible': False},
+        #     {'item': 'Chat History', 'visible': True},
+        # ]
+        # call_list = [
+        #     "SetSceneItemProperties",
+        #     "SetSceneItemProperties",
+        # ]
+        # for n in range(0, len(data_list)):
+        #     loop.run_until_complete(make_request(call_list[n], data=data_list[n]))
         
         return GOODREQ
     else:
