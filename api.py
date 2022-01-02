@@ -7,6 +7,7 @@ import paho.mqtt.subscribe as subscribe
 import simpleobsws
 import asyncio
 import json
+import random
 from config import (
     API_URL,
     API_PORT,
@@ -556,7 +557,7 @@ def newchatmsg():
 def chathistory():
     msgs = []
     formatted_msgs = []
-    linecount = 29
+    linecount = 22
     wrapwidth = 35
     for key, value in request.values.items():
         if key == "lines":
@@ -572,10 +573,14 @@ def chathistory():
         alen = len(msg['author'])
         mlen = len(msg['msg'])
         old_chatcount = chatcount
-        lines = 1 if ((alen + mlen) // wrapwidth) < 1 else ((alen + mlen) // wrapwidth)
+        lines = 1 if ((alen + mlen + 2) // wrapwidth) < 1 else ((alen + mlen) // wrapwidth)
         chatcount += lines
         # print(f"(({alen} + {mlen}) // {wrapwidth}) == {lines} + {old_chatcount} = {chatcount}")
         if chatcount <= linecount:
+            if msg['author'] == 'FrenchguyCH':
+                rnd = random.randrange(1, 100, 1)
+                if rnd % 2 == 0:
+                    msg['color'] = "87a556"
             formatted_msgs.insert(0, msg)
         i -= 1
     return render_template('chathistory.html', chatmsgs=formatted_msgs)
