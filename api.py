@@ -538,16 +538,14 @@ def newchatmsg():
         f = open('./chatmessages', 'a')
         f.write(f"{json.dumps(line)}\n")
         f.close()
-        # data_list = [
-        #     {'item': 'Chat History', 'visible': False},
-        #     {'item': 'Chat History', 'visible': True},
-        # ]
-        # call_list = [
-        #     "SetSceneItemProperties",
-        #     "SetSceneItemProperties",
-        # ]
-        # for n in range(0, len(data_list)):
-        #     loop.run_until_complete(make_request(call_list[n], data=data_list[n]))
+        data_list = [
+            {'sourceName': 'Chat History',},
+        ]
+        call_list = [
+            "RefreshBrowserSource",
+        ]
+        for n in range(0, len(data_list)):
+            loop.run_until_complete(make_request(call_list[n], data=data_list[n]))
         
         return GOODREQ
     else:
@@ -558,9 +556,26 @@ def newchatmsg():
 def chathistory():
     msgs = []
     formatted_msgs = []
+    linecount = 29
+    wrapwidth = 35
+    for key, value in request.values.items():
+        if key == "lines":
+            linecount = value
+        if key == "width":
+            wrapwidth = value
     with open('./chatmessages', 'r') as f:
         msgs = f.readlines()
-    for line in msgs:
-        msg = json.loads(line.strip('\n'))
-        formatted_msgs.append(msg)
+    chatcount = 0
+    i = len(msgs) - 1
+    while i >= 0 and chatcount <= linecount:
+        msg = json.loads(msgs[i].strip('\n'))
+        alen = len(msg['author'])
+        mlen = len(msg['msg'])
+        old_chatcount = chatcount
+        lines = 1 if ((alen + mlen) // wrapwidth) < 1 else ((alen + mlen) // wrapwidth)
+        chatcount += lines
+        # print(f"(({alen} + {mlen}) // {wrapwidth}) == {lines} + {old_chatcount} = {chatcount}")
+        if chatcount <= linecount:
+            formatted_msgs.insert(0, msg)
+        i -= 1
     return render_template('chathistory.html', chatmsgs=formatted_msgs)
