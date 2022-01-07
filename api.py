@@ -524,6 +524,7 @@ def newchatmsg():
     has_author = False
     has_color = False
     has_msg = False
+    has_service = False
     data, result = {}, {}
     for key, value in request.values.items():
         if key == "author":
@@ -532,22 +533,31 @@ def newchatmsg():
             has_color = True
         if key == "msg":
             has_msg = True
+        if key == "service":
+            has_service = True
         data[key] = value
     
-    if has_author and has_color and has_msg:
-        line = dict(author=data["author"], color=data["color"], msg=data["msg"])
-        f = open('./chatmessages', 'a')
-        f.write(f"{json.dumps(line)}\n")
-        f.close()
-        data_list = [
-            {'sourceName': 'Chat History',},
-        ]
-        call_list = [
-            "RefreshBrowserSource",
-        ]
-        for n in range(0, len(data_list)):
-            loop.run_until_complete(make_request(call_list[n], data=data_list[n]))
-        
+    if has_author and has_color and has_msg and has_service:
+        line = dict(
+            author=data["author"], 
+            color=data["color"], 
+            msg=data["msg"],
+            service=data["service"],
+            )
+        print(str(line))
+        if "[Twitch]" not in line['msg'] and "John the Unwise Geek" not in line['author']:
+            f = open('./chatmessages', 'a')
+            f.write(f"{json.dumps(line)}\n")
+            f.close()
+            data_list = [
+                {'sourceName': 'Chat History',},
+            ]
+            call_list = [
+                "RefreshBrowserSource",
+            ]
+            for n in range(0, len(data_list)):
+                loop.run_until_complete(make_request(call_list[n], data=data_list[n]))
+            return GOODREQ
         return GOODREQ
     else:
         return BADREQ
