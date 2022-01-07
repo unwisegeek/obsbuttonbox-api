@@ -12,7 +12,7 @@
             
             if (document.addEventListener) { 
                 document.addEventListener("DOMContentLoaded", scrollBottom, false);
-            } else if (window.attachEvent) {
+            } else if (window.attachEv ent) {
                 window.attachEvent("onload", scrollBottom);
             }
         </script>
@@ -22,7 +22,11 @@
     <!-- <div style="display: inline-block;">
         <div style="color: #{{ line['color'] }};"><em>{{ line['author'] }}</em></div><div style="color: #FFFFFF;"">: {{ line['msg'] }}</div><br>
     </div> -->
-    <span style="color: #{{ line['color'] }};">{{ line['author'] }}</span><span style="color: #FFFFFF;">: {{ line['msg'] }}</span><br>
+        {% if line['service'] == "Twitch" %}
+            <span style="color: #{{ line['color'] }};">{{ line['author'] }}</span><span style="color: #cb93ff;">: {{ line['msg'] }}</span><br>
+        {% else %}
+            <span style="color: #{{ line['color'] }};">{{ line['author'] }}</span><span style="color: #ffffff;">: {{ line['msg'] }}</span><br>
+        {% endif %}
     {% endfor %}
     </body>
 </html>
