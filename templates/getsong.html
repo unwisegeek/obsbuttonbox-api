@@ -1,0 +1,33 @@
+<html>
+    <head>
+        <title>Chat History</title>
+        <style>
+            html {overflow: hidden; }
+            body {background-color: #000000; color: #FFFFFF; font-size: large; font-family: Courier New, Courier, Lucida Sans Typewriter, Lucida Typewriter, monospace; }
+        </style>
+        <script>
+            function scrollBottom() {
+                window.scrollTo(0, 99999);
+            }
+        </script>
+    </head>
+    <body>
+        <table>
+            <tr>
+                <td>
+                    <img src="{{ img }}">
+                </td>
+                <td>
+                    <table>
+                        <tr>
+                            <td>{{ trackname }}</td>
+                        </tr>
+                        <tr>
+                            <td>{{ artists }}</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </body>
+</html>

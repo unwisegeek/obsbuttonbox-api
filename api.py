@@ -8,6 +8,9 @@ import simpleobsws
 import asyncio
 import json
 import random
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
+
 from config import (
     API_URL,
     API_PORT,
@@ -17,6 +20,8 @@ from config import (
     OBS_HOST,
     OBS_PORT,
     OBS_PASSWORD,
+    SPOTIFY_CLIENT_ID,
+    SPOTIFY_SECRET,
     )
 from templates import (
     scrollbar_template
@@ -594,3 +599,22 @@ def chathistory():
             formatted_msgs.insert(0, msg)
         i -= 1
     return render_template('chathistory.html', chatmsgs=formatted_msgs)
+
+@app.route('/api/getsong')
+@cross_origin()
+def getsong():
+    scope = "user-read-currently-playing"
+
+    sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
+        client_id=SPOTIFY_CLIENT_ID,
+        client_secret=SPOTIFY_SECRET,
+        redirect_uri="http://localhost:8080/",
+        scope=scope
+    ))
+    cp = sp.current_user_playing_track()
+    trackname=cp['item']['name']
+    artist = ""
+    for i in range(0, len(cp['item']['artists'])):
+        artist += f"{cp['item']['artists'][i]['name']}, " if i != (len(cp['item']['artists']) - 1) else f"{cp['item']['artists'][i]['name']}"
+    img = cp['item']['album']['images'][2]['url']
+    return render_template('getsong.html', artists=artist, trackname=trackname, img=img)
