@@ -612,9 +612,12 @@ def getsong():
         scope=scope
     ))
     cp = sp.current_user_playing_track()
-    trackname=cp['item']['name']
-    artist = ""
-    for i in range(0, len(cp['item']['artists'])):
-        artist += f"{cp['item']['artists'][i]['name']}, " if i != (len(cp['item']['artists']) - 1) else f"{cp['item']['artists'][i]['name']}"
-    img = cp['item']['album']['images'][2]['url']
-    return render_template('getsong.html', artists=artist, trackname=trackname, img=img)
+    if cp != None:
+        trackname=cp['item']['name']
+        artist = ""
+        for i in range(0, len(cp['item']['artists'])):
+            artist += f"{cp['item']['artists'][i]['name']}, " if i != (len(cp['item']['artists']) - 1) else f"{cp['item']['artists'][i]['name']}"
+        img = cp['item']['album']['images'][2]['url']
+        return render_template('getsong.html', artists=artist, trackname=trackname, img=img)
+    else:
+        return ""
