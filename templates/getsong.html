@@ -13,21 +13,18 @@
     </head>
     <body>
         <table>
-            <tr>
-                <td>
-                    <img src="{{ img }}">
-                </td>
-                <td>
-                    <table>
-                        <tr>
-                            <td>{{ trackname }}</td>
-                        </tr>
-                        <tr>
-                            <td>{{ artists }}</td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-        </table>
+            <thead>
+              <tr>
+                <th rowspan="3"><img src="{{ img }}"></th>
+                <td style="text-align:center;">{{ trackname }}</td>
+              </tr>
+              <tr>
+                <td style="text-align:center;">{{ artists }}</td>
+              </tr>
+              <tr>
+                <td style="text-align:center;">Music by Argofox</td>
+              </tr>
+            </thead>
+            </table>
     </body>
 </html>

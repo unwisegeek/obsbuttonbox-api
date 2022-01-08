@@ -9,6 +9,7 @@ import asyncio
 import json
 import random
 import spotipy
+import logging
 from spotipy.oauth2 import SpotifyOAuth
 
 from config import (
@@ -26,6 +27,10 @@ from config import (
 from templates import (
     scrollbar_template
 )
+app = Flask(__name__)
+
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 BADREQ = Response(status=400)
 GOODREQ = Response(status=200)
@@ -572,7 +577,7 @@ def newchatmsg():
 def chathistory():
     msgs = []
     formatted_msgs = []
-    linecount = 22
+    linecount = 20
     wrapwidth = 35
     for key, value in request.values.items():
         if key == "lines":
@@ -621,3 +626,16 @@ def getsong():
         return render_template('getsong.html', artists=artist, trackname=trackname, img=img)
     else:
         return ""
+
+@app.route('/api/refreshsongsource')
+@cross_origin()
+def refreshsongsource():
+    data_list = [
+        {'sourceName': 'Song',},
+    ]
+    call_list = [
+        "RefreshBrowserSource",
+    ]
+    for n in range(0, len(data_list)):
+        loop.run_until_complete(make_request(call_list[n], data=data_list[n]))
+    return GOODREQ
