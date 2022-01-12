@@ -577,7 +577,7 @@ def newchatmsg():
 def chathistory():
     msgs = []
     formatted_msgs = []
-    linecount = 20
+    linecount = 18
     wrapwidth = 35
     for key, value in request.values.items():
         if key == "lines":
