@@ -8,6 +8,8 @@ import simpleobsws
 import asyncio
 import json
 import random
+import requests
+from time import sleep
 import spotipy
 import logging
 from spotipy.oauth2 import SpotifyOAuth
@@ -54,6 +56,41 @@ async def make_request(call, data=None):
     result = await obs.call(call, data=data)
     await obs.disconnect()
     return result
+
+def mqtt_msg(topic, msg):
+    publish.single(
+            topic, 
+            str(msg),
+            qos=0, 
+            retain=False,
+            hostname=MQTT_HOST,
+            port=MQTT_PORT, 
+            client_id="", 
+            keepalive=60,
+            will=None,
+            auth=MQTT_AUTH,
+            tls=None,
+            protocol=mqtt.MQTTv311,
+            transport="tcp",
+            )
+
+def mqtt_persistant_msg(topic="var0", msg=""):
+    publish.single(
+            topic, 
+            str(msg),
+            qos=0, 
+            retain=True,
+            hostname=MQTT_HOST,
+            port=MQTT_PORT, 
+            client_id="", 
+            keepalive=60,
+            will=None,
+            auth=MQTT_AUTH,
+            tls=None,
+            protocol=mqtt.MQTTv311,
+            transport="tcp",
+            )
+
 
 def automation_start_stream():
     data_list = [
@@ -639,3 +676,69 @@ def refreshsongsource():
     for n in range(0, len(data_list)):
         loop.run_until_complete(make_request(call_list[n], data=data_list[n]))
     return GOODREQ
+
+@app.route('/api/setalert')
+@cross_origin()
+def setalert():
+    data = {}
+    ALLOWED_TYPES = (
+        'newfollow',
+    )
+    has_type = False
+    for key, value in request.values.items():
+        if key == 'type' and value in ALLOWED_TYPES:
+            has_type = True
+        data[key] = value
+    if has_type:
+        data_list = [
+        {
+            'source': 'Alert', 
+            'url': f"http://{API_URL}:{API_PORT}/api/getalert?name={data['name']}&type={data['type']}",
+            },
+        {'sourceName': 'Alert',},
+        {"source":"Alert", "render": True},
+        ]
+
+        call_list = [
+            "SetBrowserSourceProperties",
+            "RefreshBrowserSource",
+            "SetSceneItemRender",
+        ]
+
+        for n in range(0, len(data_list)):
+            loop.run_until_complete(make_request(call_list[n], data=data_list[n]))
+
+        sound = "ES_Crowd Applause 21 -0"
+        r = requests.get(f"http://{API_URL}:{API_PORT}/api/sound?name={sound}")
+
+        sleep(8)
+        data_list = [
+            {"source":"Alert", "render": False},
+        ]
+
+        call_list = [
+            "SetSceneItemRender",
+        ]
+
+        for n in range(0, len(data_list)):
+            loop.run_until_complete(make_request(call_list[n], data=data_list[n]))
+        return GOODREQ
+    else:
+        return BADREQ
+
+@app.route('/api/getalert')
+@cross_origin()
+def getalert():
+    has_type = False
+    has_name = True
+    data = {}
+    ALLOWED_TYPES = (
+        'newfollow',
+    )
+    for key, value in request.values.items():
+        if key == 'type' and value in ALLOWED_TYPES:
+            has_type = True
+        if key == 'name':
+            has_name = True
+        data[key] = value
+    return render_template('alert.html', var1=data['name'], type=data['type'])

@@ -1,0 +1,22 @@
+<html>
+    <head>
+        <title>Alert</title>
+        <style>
+            html {overflow: hidden; }
+            body {text-align: center; background-color: #000000; color: #FFFFFF; font-size: large; font-family: Courier New, Courier, Lucida Sans Typewriter, Lucida Typewriter, monospace; font-size: xx-large; }
+            .var1 {
+                color: #00ccff
+            }
+        </style>
+        <script>
+            function scrollBottom() {
+                window.scrollTo(0, 99999);
+            }
+        </script>
+    </head>
+    <body>
+        {% if type == 'newfollow' %}
+            <span class="var1">{{ var1 }}</span> is now following! Welcome!
+        {% endif %}
+    </body>
+</html>
